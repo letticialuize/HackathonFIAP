@@ -19,7 +19,7 @@ public class AgendamentoController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Agendamento>>> RetornartAgendamentos()
+    public async Task<ActionResult<IEnumerable<Agendamento>>> RetornarAgendamentos()
     {
         return await _context.Agendamentos.ToListAsync(); 
     }
@@ -29,6 +29,6 @@ public class AgendamentoController : ControllerBase
     {
         _context.Agendamentos.Add(agendamento);
         await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(RetornartAgendamentos), new { id = agendamento.Id }, agendamento);
+        return CreatedAtAction(nameof(RetornarAgendamentos), new { id = agendamento.Id }, agendamento);
     }
 }
