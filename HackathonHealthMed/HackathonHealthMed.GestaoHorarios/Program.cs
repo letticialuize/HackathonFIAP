@@ -14,15 +14,12 @@ builder.Services.AddDbContext<GestaoHorarioDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
         opt => opt.CommandTimeout((int)TimeSpan.FromMinutes(3).TotalSeconds));
 });
-builder.Services.AddSingleton<IHorarioConsultaService, HorarioConsultaService>();
+builder.Services.AddScoped<IHorarioConsultaService, HorarioConsultaService>();
 var app = builder.Build();
 
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
