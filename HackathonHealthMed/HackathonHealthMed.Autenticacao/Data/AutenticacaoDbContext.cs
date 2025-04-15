@@ -13,8 +13,8 @@ namespace HackathonHealthMed.Autenticacao.Data
 
         }
 
-        public DbSet<Paciente> Pacientes { get; set; }
-        public DbSet<Medico> Medicos { get; set; }
+        public DbSet<Paciente> Paciente { get; set; }
+        public DbSet<Medico> Medico { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -32,7 +32,7 @@ namespace HackathonHealthMed.Autenticacao.Data
 
             builder.Entity<IdentityRole>().HasData(
                 new IdentityRole { Name = "Paciente", NormalizedName = "PACIENTE" },
-                new IdentityRole { Name = "Médico", NormalizedName = "MÉDICO" }
+                new IdentityRole { Name = "Medico", NormalizedName = "MEDICO" }
             );
         }
     }
