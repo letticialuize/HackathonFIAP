@@ -17,7 +17,7 @@ namespace HackathonHealthMed.Autenticacao.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { "c29128fc-236f-40f2-902d-f6bc1ccff034", null, "Médico", "MÉDICO" },
+                    { "c29128fc-236f-40f2-902d-f6bc1ccff034", null, "Medico", "MEDICO" },
                     { "d6645049-9b51-4e04-a134-eb966d27ae67", null, "Paciente", "PACIENTE" }
                 });
         }

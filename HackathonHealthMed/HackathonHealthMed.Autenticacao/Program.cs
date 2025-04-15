@@ -1,4 +1,6 @@
 using HackathonHealthMed.Autenticacao.Data;
+using HackathonHealthMed.Autenticacao.Services.Implementations;
+using HackathonHealthMed.Autenticacao.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +15,11 @@ builder.Services.AddDbContext<AutenticacaoDbContext>(options =>
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<AutenticacaoDbContext>()
-    .AddDefaultTokenProviders();
+.AddDefaultTokenProviders();
+
+builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<IAutenticacaoService, AutenticacaoService>();
+
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
@@ -37,7 +43,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo
@@ -52,6 +57,15 @@ builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Autenticação Health Med");
+    });
+}
 
 app.UseHttpsRedirection();
 

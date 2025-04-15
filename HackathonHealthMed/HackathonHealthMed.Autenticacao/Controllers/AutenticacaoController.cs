@@ -1,13 +1,17 @@
 ﻿using HackathonHealthMed.Autenticacao.Data;
 using HackathonHealthMed.Autenticacao.Models.DTOs;
 using HackathonHealthMed.Autenticacao.Models.Entities;
+using HackathonHealthMed.Autenticacao.Models.Enums;
+using HackathonHealthMed.Autenticacao.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Extensions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 
 namespace HackathonHealthMed.Autenticacao.Controllers
 {
@@ -16,22 +20,23 @@ namespace HackathonHealthMed.Autenticacao.Controllers
     public class AutenticacaoController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly IConfiguration _configuration;
-        private readonly AutenticacaoDbContext _context;
-        public IActionResult Index()
-        {
-            return View();
-        }
+        private readonly IJwtService _jwtService;
+        private readonly IAutenticacaoService _autenticacaoService;
 
-        public AutenticacaoController(UserManager<IdentityUser> userManager, IConfiguration configuration)
+        public AutenticacaoController(UserManager<IdentityUser> userManager, IConfiguration configuration, AutenticacaoDbContext context, 
+            IAutenticacaoService autenticacaoService, IJwtService jwtService)
         {
             _userManager = userManager;
-            _configuration = configuration;
+            _autenticacaoService=autenticacaoService;
+            _jwtService = jwtService;
         }
 
-        [HttpPost]
+        [HttpPost("registrar-paciente")]
         public async Task<IActionResult> CriarPaciente([FromBody] RegistroPacienteDTO pacienteDTO)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var user = new IdentityUser
             {
                 UserName = pacienteDTO.Email,
@@ -43,44 +48,63 @@ namespace HackathonHealthMed.Autenticacao.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            await _userManager.AddToRoleAsync(user, "Paciente");
+            await _userManager.AddToRoleAsync(user, EnumRole.PACIENTE.ToString());
 
-            var paciente = new Paciente
-            {   
-                Id = Guid.NewGuid(),
-                Nome = pacienteDTO.Nome,
-                CPF = pacienteDTO.CPF,
-                UsuarioId = user.Id
-            };
-
-            _context.Pacientes.Add(paciente);
-            await _context.SaveChangesAsync();
+            _autenticacaoService.AdicionarPaciente(pacienteDTO, user);
 
             return Ok(new { message = "Paciente criado com sucesso!" });
         }
 
-        private string GenerateJwtToken(IdentityUser user)
+        [HttpPost("registrar-medico")]
+        public async Task<IActionResult> CriarMedico([FromBody] RegistroMedicoDTO medicoDTO)
         {
-            var jwtSettings = _configuration.GetSection("Jwt");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var claims = new[]
+            var user = new IdentityUser
             {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id)
+                UserName = medicoDTO.Email,
+                Email = medicoDTO.Email,
             };
 
-            var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(jwtSettings["ExpireMinutes"])),
-                signingCredentials: creds
-            );
+            var result = await _userManager.CreateAsync(user, medicoDTO.Senha);
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            await _userManager.AddToRoleAsync(user, EnumRole.MEDICO.ToString());
+
+            _autenticacaoService.AdicionarMedico(medicoDTO, user);
+
+            return Ok(new { message = "Médico criado com sucesso!" });
         }
+
+        [HttpPost("login-medico")]
+        public async Task<IActionResult> LoginMedico([FromBody] LoginDTO loginDto)
+        {
+            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+
+            if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Senha))
+                return Unauthorized(new { message = "Credenciais inválidas" });
+
+            var token = _jwtService.GerarJwtTokenMedico(user);
+
+            return Ok($"Bearer {token}");
+        }
+
+        [HttpPost("login-paciente")]
+        public async Task<IActionResult> LoginPaciente([FromBody] LoginDTO loginDto)
+        {
+            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+
+            if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Senha))
+                return Unauthorized(new { message = "Credenciais inválidas" });
+
+            var token = _jwtService.GerarJwtTokenPaciente(user);
+
+            return Ok($"Bearer {token}");
+        }
+
+
     }
 }
