@@ -39,5 +39,10 @@ namespace HackathonHealthMed.GestaoHorarios.Services
         {
             return _context.HorarioConsulta.ToList();
         }
+
+        public bool ValidaHorarioPorMedico(DateTime horario, string crmMedico)
+        {
+            return _context.HorarioConsulta.Any(x => x.HorarioInicial.Date == horario.Date && x.MedicoCrm == crmMedico);
+        }
     }
 }

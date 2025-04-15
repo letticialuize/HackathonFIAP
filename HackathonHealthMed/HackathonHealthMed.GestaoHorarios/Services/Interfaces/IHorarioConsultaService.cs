@@ -9,5 +9,6 @@ namespace HackathonHealthMed.GestaoHorarios.Services.Interfaces
         public void ExcluirContato(Guid IdHorarioConsulta);
         public List<HorarioConsulta> ConsultarHorariosPorData(DateTime horario);
         public List<HorarioConsulta> ListarHorariosConsulta();
+        public bool ValidaHorarioPorMedico(DateTime horario, string crmMedico);
     }
 }
