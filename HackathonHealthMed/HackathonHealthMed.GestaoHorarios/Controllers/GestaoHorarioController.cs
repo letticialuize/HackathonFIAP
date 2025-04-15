@@ -1,7 +1,10 @@
-﻿using HackathonHealthMed.GestaoHorarios.Models;
+﻿using HackathonHealthMed.GestaoHorarios.DTOs;
+using HackathonHealthMed.GestaoHorarios.Models;
 using HackathonHealthMed.GestaoHorarios.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace HackathonHealthMed.GestaoHorarios.Controllers
 {
@@ -10,9 +13,12 @@ namespace HackathonHealthMed.GestaoHorarios.Controllers
     public class GestaoHorarioController : ControllerBase
     {
         private readonly IHorarioConsultaService _horarioConsultaService;
-        public GestaoHorarioController(IHorarioConsultaService horarioConsultaService)
+        private readonly ITokenService _tokenService;
+
+        public GestaoHorarioController(IHorarioConsultaService horarioConsultaService, ITokenService tokenService)
         {
             _horarioConsultaService = horarioConsultaService;
+            _tokenService = tokenService;
         }
 
         [HttpGet]
@@ -28,14 +34,15 @@ namespace HackathonHealthMed.GestaoHorarios.Controllers
         }
 
         [HttpPost]
-        public IActionResult AdicionarHorario(DateTime horarioInicial, DateTime horarioFinal)
+        public IActionResult AdicionarHorario(DateTime horarioInicial)
         {
+            var medico = _tokenService.ConverteTokenAuthorizationMedico();
             var horarioConsulta = new HorarioConsulta
             {
                 Id = Guid.NewGuid(),
-                MedicoCrm = "123456",
+                MedicoCrm = medico.CRM,
                 HorarioInicial = horarioInicial,
-                HorarioFinal = horarioFinal,
+                HorarioFinal = horarioInicial.AddHours(1),
                 EstaDisponivel = true
             };
             _horarioConsultaService.AdicionarHorarioConsulta(horarioConsulta);
