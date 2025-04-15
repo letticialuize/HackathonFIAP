@@ -1,9 +1,12 @@
 using HackathonHealthMed.GestaoHorarios.Data;
 using HackathonHealthMed.GestaoHorarios.Services;
 using HackathonHealthMed.GestaoHorarios.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Reflection.Metadata;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,16 +50,35 @@ builder.Services.AddDbContext<GestaoHorarioDbContext>(options =>
 builder.Services.AddScoped<IHorarioConsultaService, HorarioConsultaService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "HackathonHealthMed",
+            ValidAudience = "HackathonHealthMedAPI",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("K8XJ!pL2@3z$gW#qR6yVmTn9FsEcYdUb"))
+        };
+    });
+
+builder.Services.AddAuthorization();
+
 var app = builder.Build();
 
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.UseSwagger();
 app.UseSwaggerUI();
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
 
 app.MapControllers();
 

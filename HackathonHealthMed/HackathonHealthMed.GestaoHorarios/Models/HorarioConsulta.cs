@@ -8,8 +8,7 @@ namespace HackathonHealthMed.GestaoHorarios.Models
         public Guid Id { get; set; }
 
         [Required(ErrorMessage = "O CRM do médico é obrigatório")]
-        [MaxLength(6, ErrorMessage = "O CRM deve ter no máximo 6 dígitos.")]
-        [RegularExpression(@"^\d{4,6}$", ErrorMessage = "O CRM deve ser um número de 4 a 6 dígitos.")]
+        [RegularExpression(@"^\d{4,6}/[A-Z]{2}$", ErrorMessage = "O CRM deve estar no formato '123456/ZZ'.")]
         public string MedicoCrm { get; set; }
 
         [Required(ErrorMessage = "Horário Inicial é obrigatório")]
