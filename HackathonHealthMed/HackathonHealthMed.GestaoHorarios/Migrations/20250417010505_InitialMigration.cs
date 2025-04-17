@@ -16,7 +16,7 @@ namespace HackathonHealthMed.GestaoHorarios.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    MedicoCrm = table.Column<string>(type: "nvarchar(6)", maxLength: 6, nullable: false),
+                    MedicoCrm = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: false),
                     HorarioInicial = table.Column<DateTime>(type: "datetime2", nullable: false),
                     HorarioFinal = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EstaDisponivel = table.Column<bool>(type: "bit", nullable: false)

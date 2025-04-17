@@ -39,8 +39,8 @@ namespace HackathonHealthMed.GestaoHorarios.Migrations
 
                     b.Property<string>("MedicoCrm")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("Id");
 
