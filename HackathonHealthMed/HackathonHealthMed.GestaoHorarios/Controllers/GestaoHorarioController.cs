@@ -30,14 +30,20 @@ namespace HackathonHealthMed.GestaoHorarios.Controllers
             return Ok(_horarioConsultaService.ListarHorariosConsulta());
         }
 
-        [HttpGet("{data}")]
+        [HttpGet("ListarHorariosPorData")]
         public IActionResult ListarHorariosPorData(DateTime data)
         {
             return Ok(_horarioConsultaService.ConsultarHorariosPorData(data));
         }
 
+        [HttpGet("ListarHorariosPorDataECrm")]
+        public IActionResult ListarHorariosPorDataECrm(DateTime data,[FromQuery]string crm)
+        {
+            return Ok(_horarioConsultaService.ConsultarHorariosPorDataECrm(data, crm));
+        }
+
         [HttpPost]
-        public IActionResult AdicionarHorario(DateTime horarioInicial)
+        public IActionResult AdicionarHorario(DateTime horarioInicial  )
         {
             var medico = _tokenService.ConverteTokenAuthorizationMedico();
             if (_horarioConsultaService.ValidaHorarioPorMedico(horarioInicial, medico.CRM))
@@ -54,6 +60,21 @@ namespace HackathonHealthMed.GestaoHorarios.Controllers
             _horarioConsultaService.AdicionarHorarioConsulta(horarioConsulta);
             return CreatedAtAction(nameof(ListarHorarios), new { id = horarioConsulta.Id }, horarioConsulta);
 
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult AtualizarHorario(Guid id, DateTime horarioInicial)
+        {
+            var horarioSemAlteracao = _horarioConsultaService.ListarHorariosConsulta().FirstOrDefault(h => h.Id == id);
+            if(!horarioSemAlteracao.EstaDisponivel)
+                return Conflict(new { Mensagem = "Não é possível alterar horário com agendamento confirmado." });
+            var medico = _tokenService.ConverteTokenAuthorizationMedico();
+            if (_horarioConsultaService.ValidaHorarioPorMedico(horarioInicial, medico.CRM))
+                return Conflict(new { Mensagem = "Horário já cadastrado." });
+            horarioSemAlteracao.HorarioInicial = horarioInicial;
+            horarioSemAlteracao.HorarioFinal = horarioInicial.AddHours(1);
+            _horarioConsultaService.AtualizarHorarioConsulta(horarioSemAlteracao);
+            return Ok(horarioSemAlteracao);
         }
     }
 }

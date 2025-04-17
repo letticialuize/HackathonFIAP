@@ -30,6 +30,11 @@ namespace HackathonHealthMed.GestaoHorarios.Services
             return _context.HorarioConsulta.Where(x => x.HorarioInicial.Date == horario.Date).ToList();
         }
 
+        public List<HorarioConsulta> ConsultarHorariosPorDataECrm(DateTime horario, string crm)
+        {
+            return _context.HorarioConsulta.Where(x => x.HorarioInicial.Date == horario.Date && x.MedicoCrm == crm).ToList();
+        }
+
         public void ExcluirContato(Guid IdHorarioConsulta)
         {
             _context.HorarioConsulta.Remove(_context.HorarioConsulta.Find(IdHorarioConsulta));
