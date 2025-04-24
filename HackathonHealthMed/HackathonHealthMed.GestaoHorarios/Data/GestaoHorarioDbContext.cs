@@ -10,5 +10,6 @@ namespace HackathonHealthMed.GestaoHorarios.Data
         : base(options) { }
 
         public DbSet<HorarioConsulta> HorarioConsulta { get; set; }
+        public DbSet<ValorConsultaMedico> ValorConsultaMedico { get; set; }
     }
 }

@@ -48,6 +48,7 @@ builder.Services.AddDbContext<GestaoHorarioDbContext>(options =>
         opt => opt.CommandTimeout((int)TimeSpan.FromMinutes(3).TotalSeconds));
 });
 builder.Services.AddScoped<IHorarioConsultaService, HorarioConsultaService>();
+builder.Services.AddScoped<IValorConsultaMedicoService, ValorConsultaMedicoService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
