@@ -11,6 +11,7 @@ namespace HackathonHealthMed.Autenticacao.Services.Interfaces
         ResponsePacienteDTO BuscarPacientePorCPF(string cpf);
         void AdicionarPaciente(RegistroPacienteDTO pacienteDTO, IdentityUser user);
         void AdicionarMedico(RegistroMedicoDTO medicoDTO, IdentityUser user);
+        List<ResponseMedicoDTO> BuscarMedicosPorEspecialidade(string especialidade);
 
     }
 }

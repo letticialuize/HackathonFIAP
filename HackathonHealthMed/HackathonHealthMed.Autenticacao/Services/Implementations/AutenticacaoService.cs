@@ -11,6 +11,7 @@ using System.Text;
 using HackathonHealthMed.Autenticacao.Data;
 using HackathonHealthMed.Autenticacao.Extensions;
 using HackathonHealthMed.Autenticacao.Models.Entities;
+using HackathonHealthMed.Autenticacao.Models.Enums;
 
 namespace HackathonHealthMed.Autenticacao.Services.Implementations
 {
@@ -97,6 +98,26 @@ namespace HackathonHealthMed.Autenticacao.Services.Implementations
                 Especialidade = medico.Especialidade.GetDisplayName(),
                 UsuarioId = medico.UsuarioId
             };
+        }
+
+        public List<ResponseMedicoDTO> BuscarMedicosPorEspecialidade(string especialidade)
+        {
+            var enumEspecialidade = EnumExtensions.GetEnumByDisplayName<EnumEspecialidadeMedica>(especialidade);
+
+            if (!enumEspecialidade.HasValue)
+                throw new Exception("Especialidade não encontrada.");
+
+            var medicos = _context.Medico.Where(x => x.Especialidade == enumEspecialidade)
+                                          .Select(medico => new ResponseMedicoDTO()
+                                          {
+                                              Id = medico.Id,
+                                              Nome = medico.Nome,
+                                              CRM = medico.CRM,
+                                              Especialidade = medico.Especialidade.GetDisplayName(),
+                                              UsuarioId = medico.UsuarioId
+                                          }).ToList();
+
+            return medicos;
         }
 
         public ResponsePacienteDTO BuscarPacientePorCPF(string cpf)

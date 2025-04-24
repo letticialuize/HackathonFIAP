@@ -29,7 +29,15 @@ namespace HackathonHealthMed.Autenticacao.Services.Implementations
 
             var medicoDTO = _autenticacaoService.BuscarMedicoPorId(user.Id);
 
-            var medicoJson = JsonSerializer.Serialize(medicoDTO);
+            var options = new JsonSerializerOptions
+            {
+                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                WriteIndented = true
+            };
+
+            var medicoJson = JsonSerializer.Serialize(medicoDTO, options);
+
+            
 
             var claims = new[]
             {
