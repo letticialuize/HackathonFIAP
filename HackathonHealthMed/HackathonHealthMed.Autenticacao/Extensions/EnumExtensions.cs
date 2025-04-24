@@ -17,5 +17,19 @@ namespace HackathonHealthMed.Autenticacao.Extensions
 
             return displayAttribute?.Name ?? enumValue.ToString();
         }
+
+        public static TEnum? GetEnumByDisplayName<TEnum>(string displayName) where TEnum : struct, Enum
+        {
+            foreach (var field in typeof(TEnum).GetFields(BindingFlags.Public | BindingFlags.Static))
+            {
+                var attribute = field.GetCustomAttribute<DisplayAttribute>();
+                if (attribute?.Name?.Equals(displayName, StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return (TEnum)field.GetValue(null)!;
+                }
+            }
+
+            return null;
+        }
     }
 }

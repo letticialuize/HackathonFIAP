@@ -11,6 +11,7 @@ using System.Text;
 using HackathonHealthMed.Autenticacao.Data;
 using HackathonHealthMed.Autenticacao.Extensions;
 using HackathonHealthMed.Autenticacao.Models.Entities;
+using HackathonHealthMed.Autenticacao.Models.Enums;
 
 namespace HackathonHealthMed.Autenticacao.Services.Implementations
 {
@@ -79,6 +80,59 @@ namespace HackathonHealthMed.Autenticacao.Services.Implementations
                 Nome = paciente.Nome,
                 CPF = paciente.CPF,
                 UsuarioId = userId
+            };
+        }
+
+        public ResponseMedicoDTO BuscarMedicoPorCRM(string crm)
+        {
+            var medico = _context.Medico.FirstOrDefault(x => x.CRM == crm.ToString());
+
+            if (medico == null)
+                throw new Exception("Médico não encontrado.");
+
+            return new ResponseMedicoDTO()
+            {
+                Id = medico.Id,
+                Nome = medico.Nome,
+                CRM = medico.CRM,
+                Especialidade = medico.Especialidade.GetDisplayName(),
+                UsuarioId = medico.UsuarioId
+            };
+        }
+
+        public List<ResponseMedicoDTO> BuscarMedicosPorEspecialidade(string especialidade)
+        {
+            var enumEspecialidade = EnumExtensions.GetEnumByDisplayName<EnumEspecialidadeMedica>(especialidade);
+
+            if (!enumEspecialidade.HasValue)
+                throw new Exception("Especialidade não encontrada.");
+
+            var medicos = _context.Medico.Where(x => x.Especialidade == enumEspecialidade)
+                                          .Select(medico => new ResponseMedicoDTO()
+                                          {
+                                              Id = medico.Id,
+                                              Nome = medico.Nome,
+                                              CRM = medico.CRM,
+                                              Especialidade = medico.Especialidade.GetDisplayName(),
+                                              UsuarioId = medico.UsuarioId
+                                          }).ToList();
+
+            return medicos;
+        }
+
+        public ResponsePacienteDTO BuscarPacientePorCPF(string cpf)
+        {
+            var paciente = _context.Paciente.FirstOrDefault(x => x.CPF == cpf);
+
+            if (paciente == null)
+                throw new Exception("Paciente não encontrado.");
+
+            return new ResponsePacienteDTO()
+            {
+                Id = paciente.Id,
+                Nome = paciente.Nome,
+                CPF = paciente.CPF,
+                UsuarioId = paciente.UsuarioId
             };
         }
     }

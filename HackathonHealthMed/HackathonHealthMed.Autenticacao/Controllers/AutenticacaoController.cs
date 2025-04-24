@@ -23,7 +23,7 @@ namespace HackathonHealthMed.Autenticacao.Controllers
         private readonly IJwtService _jwtService;
         private readonly IAutenticacaoService _autenticacaoService;
 
-        public AutenticacaoController(UserManager<IdentityUser> userManager, IConfiguration configuration, AutenticacaoDbContext context, 
+        public AutenticacaoController(UserManager<IdentityUser> userManager, IConfiguration configuration, AutenticacaoDbContext context,
             IAutenticacaoService autenticacaoService, IJwtService jwtService)
         {
             _userManager = userManager;
@@ -34,75 +34,128 @@ namespace HackathonHealthMed.Autenticacao.Controllers
         [HttpPost("registrar-paciente")]
         public async Task<IActionResult> CriarPaciente([FromBody] RegistroPacienteDTO pacienteDTO)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var user = new IdentityUser
+            try
             {
-                UserName = pacienteDTO.Email,
-                Email = pacienteDTO.Email,
-            };
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var result = await _userManager.CreateAsync(user, pacienteDTO.Senha);
+                var user = new IdentityUser
+                {
+                    UserName = pacienteDTO.Email,
+                    Email = pacienteDTO.Email,
+                };
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+                var result = await _userManager.CreateAsync(user, pacienteDTO.Senha);
 
-            await _userManager.AddToRoleAsync(user, EnumRole.PACIENTE.ToString());
+                if (!result.Succeeded)
+                    return BadRequest(result.Errors);
 
-            _autenticacaoService.AdicionarPaciente(pacienteDTO, user);
+                await _userManager.AddToRoleAsync(user, EnumRole.PACIENTE.ToString());
 
-            return Ok(new { message = "Paciente criado com sucesso!" });
+                _autenticacaoService.AdicionarPaciente(pacienteDTO, user);
+
+                return Ok(new { message = "Paciente criado com sucesso!" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Erro interno no servidor: {ex.Message}" });
+            }
         }
 
         [HttpPost("registrar-medico")]
         public async Task<IActionResult> CriarMedico([FromBody] RegistroMedicoDTO medicoDTO)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var user = new IdentityUser
+            try
             {
-                UserName = medicoDTO.Email,
-                Email = medicoDTO.Email,
-            };
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var result = await _userManager.CreateAsync(user, medicoDTO.Senha);
+                var user = new IdentityUser
+                {
+                    UserName = medicoDTO.Email,
+                    Email = medicoDTO.Email,
+                };
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+                var result = await _userManager.CreateAsync(user, medicoDTO.Senha);
 
-            await _userManager.AddToRoleAsync(user, EnumRole.MEDICO.ToString());
+                if (!result.Succeeded)
+                    return BadRequest(result.Errors);
 
-            _autenticacaoService.AdicionarMedico(medicoDTO, user);
+                await _userManager.AddToRoleAsync(user, EnumRole.MEDICO.ToString());
 
-            return Ok(new { message = "Médico criado com sucesso!" });
+                _autenticacaoService.AdicionarMedico(medicoDTO, user);
+
+                return Ok(new { message = "Médico criado com sucesso!" });
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Erro interno no servidor: {ex.Message}" });
+            }
         }
 
         [HttpPost("login-medico")]
-        public async Task<IActionResult> LoginMedico([FromBody] LoginDTO loginDto)
+        public async Task<IActionResult> LoginMedico([FromBody] LoginMedicoDTO loginDto)
         {
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Senha))
-                return Unauthorized(new { message = "Credenciais inválidas" });
+                var medico = _autenticacaoService.BuscarMedicoPorCRM(loginDto.CRM);
 
-            var token = _jwtService.GerarJwtTokenMedico(user);
+                if (medico == null)
+                    return BadRequest(new { message = "CRM inválido para efetuar o login" });
 
-            return Ok($"Bearer {token}");
+                var user = await _userManager.FindByIdAsync(medico.UsuarioId);
+
+                if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Senha))
+                    return Unauthorized(new { message = "Credenciais inválidas" });
+
+                var token = _jwtService.GerarJwtTokenMedico(user);
+
+                return Ok($"Bearer {token}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Erro interno no servidor: {ex.Message}" });
+            }
+
         }
 
         [HttpPost("login-paciente")]
-        public async Task<IActionResult> LoginPaciente([FromBody] LoginDTO loginDto)
+        public async Task<IActionResult> LoginPaciente([FromBody] LoginPacienteDTO loginDto)
         {
-            var user = await _userManager.FindByEmailAsync(loginDto.Email);
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Senha))
-                return Unauthorized(new { message = "Credenciais inválidas" });
+                IdentityUser user = null;
 
-            var token = _jwtService.GerarJwtTokenPaciente(user);
+                if(!String.IsNullOrEmpty(loginDto.Cpf) && String.IsNullOrEmpty(loginDto.Email))
+                {
+                    var paciente = _autenticacaoService.BuscarPacientePorCPF(loginDto.Cpf);
 
-            return Ok($"Bearer {token}");
+                    if (paciente == null)
+                        return BadRequest(new { message = "Paciente inválido para efetuar o login" });
+
+                    user = await _userManager.FindByIdAsync(paciente.UsuarioId);
+                }
+                else
+                    user = await _userManager.FindByEmailAsync(loginDto.Email);
+
+                if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Senha))
+                    return Unauthorized(new { message = "Credenciais inválidas" });
+
+                var token = _jwtService.GerarJwtTokenPaciente(user);
+
+                return Ok($"Bearer {token}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = $"Erro interno no servidor: {ex.Message}" });
+            }
         }
 
 
