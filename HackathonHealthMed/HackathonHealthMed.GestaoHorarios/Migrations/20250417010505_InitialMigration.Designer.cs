@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HackathonHealthMed.GestaoHorarios.Migrations
 {
     [DbContext(typeof(GestaoHorarioDbContext))]
-    [Migration("20250413232246_InitialMigration")]
+    [Migration("20250417010505_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -42,8 +42,8 @@ namespace HackathonHealthMed.GestaoHorarios.Migrations
 
                     b.Property<string>("MedicoCrm")
                         .IsRequired()
-                        .HasMaxLength(6)
-                        .HasColumnType("nvarchar(6)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("Id");
 
