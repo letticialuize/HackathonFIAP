@@ -49,5 +49,18 @@ namespace HackathonHealthMed.GestaoHorarios.Services
         {
             return _context.HorarioConsulta.Any(x => x.HorarioInicial.Date == horario.Date && x.MedicoCrm == crmMedico);
         }
+
+        public List<HorarioConsulta> ConsultarHorariosDisponiveisPorCrm(string crm)
+        {
+            return _context.HorarioConsulta.Where(x => x.MedicoCrm == crm && x.EstaDisponivel).ToList();
+        }
+
+        public void OcupaHorarioDisponivel(Guid id)
+        {
+            var horarioConsulta = _context.HorarioConsulta.Find(id);
+            horarioConsulta.EstaDisponivel = false;
+            _context.HorarioConsulta.Update(horarioConsulta);
+            _context.SaveChanges();
+        }
     }
 }

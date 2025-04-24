@@ -4,6 +4,7 @@ using HackathonHealthMed.GestaoHorarios.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HackathonHealthMed.GestaoHorarios.Migrations
 {
     [DbContext(typeof(GestaoHorarioDbContext))]
-    partial class GestaoHorarioDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250424215738_Inclusão de model Valor de Consulta por Médico")]
+    partial class InclusãodemodelValordeConsultaporMédico
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
