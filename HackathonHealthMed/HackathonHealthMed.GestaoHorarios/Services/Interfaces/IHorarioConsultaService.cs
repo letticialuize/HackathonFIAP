@@ -1,4 +1,5 @@
-﻿using HackathonHealthMed.GestaoHorarios.Models;
+﻿using HackathonHealthMed.GestaoHorarios.DTOs;
+using HackathonHealthMed.GestaoHorarios.Models;
 
 namespace HackathonHealthMed.GestaoHorarios.Services.Interfaces
 {
@@ -11,7 +12,7 @@ namespace HackathonHealthMed.GestaoHorarios.Services.Interfaces
         public List<HorarioConsulta> ConsultarHorariosPorDataECrm(DateTime horario, string crm); 
         public List<HorarioConsulta> ListarHorariosConsulta();
         public bool ValidaHorarioPorMedico(DateTime horario, string crmMedico);
-        public List<HorarioConsulta> ConsultarHorariosDisponiveisPorCrm(string crm);
+        public List<AgendaMedicoDTO> ConsultarHorariosDisponiveisPorCrm(string crm);
         public void OcupaHorarioDisponivel(Guid id);
     }
 }

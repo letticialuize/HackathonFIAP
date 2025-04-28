@@ -17,12 +17,16 @@ public class AgendamentoController : ControllerBase
 {
     private readonly IAgendamentoService _agendamentoService;
     private readonly IAutenticacaoApiService _autenticacaoApiService;
+    private readonly IHorarioApiService _horarioApiService;
+
     private readonly ITokenService _tokenService;
 
-    public AgendamentoController(IAgendamentoService agendamentoService, IAutenticacaoApiService autenticacaoApiService, ITokenService tokenService)
+    public AgendamentoController(IAgendamentoService agendamentoService, IAutenticacaoApiService autenticacaoApiService,
+                                 IHorarioApiService horarioApiService, ITokenService tokenService)
     {
         _agendamentoService = agendamentoService;
         _autenticacaoApiService = autenticacaoApiService;
+        _horarioApiService = horarioApiService;
         _tokenService = tokenService;
     }
 
@@ -45,5 +49,13 @@ public class AgendamentoController : ControllerBase
     {
         var retorno = await _autenticacaoApiService.ListarMedicos(especialidade);
         return Ok(retorno);
+    }
+
+    [HttpGet("ListarHorariosDisponiveisPorCrm")]
+    public async Task<IActionResult> ListarHorariosDisponiveisPorCrm([FromQuery] string crm)
+    {
+        var horariosDisponiveis = await _horarioApiService.ListarHorariosDisponiveis(crm);
+
+        return Ok(horariosDisponiveis);
     }
 }

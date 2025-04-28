@@ -49,6 +49,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
 builder.Services.AddScoped<IAutenticacaoApiService, AutenticacaoApiService>();
+builder.Services.AddScoped<IHorarioApiService, HorarioApiService>();
+
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
