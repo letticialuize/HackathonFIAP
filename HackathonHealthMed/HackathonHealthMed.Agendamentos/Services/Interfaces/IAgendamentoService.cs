@@ -4,8 +4,9 @@ namespace HackathonHealthMed.Agendamentos.Services.Interfaces
 {
     public interface IAgendamentoService
     {
-        public List<Agendamento> ListarAgendamentos(Guid pacienteId);
-        public void CriarAgendamento(Agendamento agendamento);
-        public void CancelarAgendamento(Agendamento agendamento, string justificativa);
+        List<Agendamento> ListarAgendamentos(Guid pacienteId);
+        void CriarAgendamento(Agendamento agendamento);
+        Agendamento CancelarAgendamento(Agendamento agendamento, string justificativa);
+        Agendamento ObterAgendamento(Guid idAgendamento);
     }
 }

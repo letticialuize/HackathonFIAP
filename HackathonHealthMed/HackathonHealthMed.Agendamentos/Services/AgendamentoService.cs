@@ -12,12 +12,14 @@ namespace HackathonHealthMed.Agendamentos.Services
         {
             _context = context;
         }
-        public void CancelarAgendamento(Agendamento agendamento, string justificativa)
+        public Agendamento CancelarAgendamento(Agendamento agendamento, string justificativa)
         {
             agendamento.Status = StatusAgendamento.Cancelado;
             agendamento.Justificativa = justificativa;
             _context.Agendamentos.Update(agendamento);
             _context.SaveChanges();
+
+            return agendamento;
         }
 
         public void CriarAgendamento(Agendamento agendamento)
@@ -31,6 +33,12 @@ namespace HackathonHealthMed.Agendamentos.Services
             return _context.Agendamentos
                 .Where(a => a.PacienteId == pacienteId)
                 .ToList();
+        }
+
+        public Agendamento? ObterAgendamento(Guid idAgendamento)
+        {
+            return _context.Agendamentos
+                .FirstOrDefault(x => x.Id == idAgendamento);
         }
     }
 }

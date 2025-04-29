@@ -38,10 +38,44 @@ public class AgendamentoController : ControllerBase
     }
 
     [HttpPost("CriarAgendamentos")]
-    public async Task<ActionResult<Agendamento>> CriarAgendamentos(Agendamento agendamento)
+    public async Task<ActionResult<Agendamento>> CriarAgendamentos(CriarAgendamentoDTO agendamentoDTO)
     {
-        _agendamentoService.CriarAgendamento(agendamento);
-        return CreatedAtAction(nameof(RetornarAgendamentos), new { id = agendamento.Id }, agendamento);
+        var paciente = _tokenService.ConverteTokenAuthorizationPaciente();
+
+        var agendamento = new Agendamento
+        {
+            Id = Guid.NewGuid(),
+            HorarioConsultaId = agendamentoDTO.HorarioConsultaId,
+            PacienteId = paciente.Id,
+            Justificativa = string.Empty,
+            Status = StatusAgendamento.Pendente
+        };
+
+        var horarioAgendado = await _horarioApiService.OcupaHorarioDisponivel(agendamentoDTO.HorarioConsultaId);
+
+        if (horarioAgendado != null)
+        {
+            _agendamentoService.CriarAgendamento(agendamento);
+
+            return CreatedAtAction(nameof(RetornarAgendamentos), new { id = agendamento.Id }, agendamento);
+        }
+
+        return BadRequest("Não foi possível realizar o agendamento.");
+    }
+
+    [HttpPut("CancelarAgendamento")]
+    public async Task<ActionResult<Agendamento>> CancelarAgendamento(CancelarAgendamentoDTO cancelarAgendamentoDTO)
+    {
+        var paciente = _tokenService.ConverteTokenAuthorizationPaciente();
+
+        var agendamento = _agendamentoService.ObterAgendamento(cancelarAgendamentoDTO.AgendamentoId);
+
+        if (agendamento is null)
+            Conflict("Agendamento não encontrado");
+
+        _agendamentoService.CancelarAgendamento(agendamento, cancelarAgendamentoDTO.Justificativa);
+
+        return Ok(agendamento);
     }
 
     [HttpGet("ListarMedicosPorEspecialidade")]
