@@ -40,5 +40,10 @@ namespace HackathonHealthMed.Agendamentos.Services
             return _context.Agendamentos
                 .FirstOrDefault(x => x.Id == idAgendamento);
         }
+
+        public List<Agendamento> ListarAgendamentosPorMedico(Guid idMedico)
+        {
+            return _context.Agendamentos.Where(x => x.MedicoId == idMedico).ToList();
+        }
     }
 }

@@ -18,6 +18,9 @@ public class Agendamento
 
     [MaxLength(200)]
     public string? Justificativa { get; set; }
+
+    [Required]
+    public Guid MedicoId { get; set; }
 }
 
 public enum StatusAgendamento
