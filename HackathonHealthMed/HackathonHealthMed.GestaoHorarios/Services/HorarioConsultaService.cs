@@ -75,5 +75,13 @@ namespace HackathonHealthMed.GestaoHorarios.Services
             _context.HorarioConsulta.Update(horarioConsulta);
             _context.SaveChanges();
         }
+
+        public void DesocupaHorario(Guid id)
+        {
+            var horarioConsulta = _context.HorarioConsulta.Find(id);
+            horarioConsulta.EstaDisponivel = true;
+            _context.HorarioConsulta.Update(horarioConsulta);
+            _context.SaveChanges();
+        }
     }
 }

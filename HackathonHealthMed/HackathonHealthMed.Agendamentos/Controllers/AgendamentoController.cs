@@ -2,6 +2,8 @@
 using HackathonHealthMed.Agendamentos.DTOs;
 using HackathonHealthMed.Agendamentos.Models;
 using HackathonHealthMed.Agendamentos.Services.Interfaces;
+using HackathonHealthMed.Contracts;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -20,41 +22,47 @@ public class AgendamentoController : ControllerBase
     private readonly IHorarioApiService _horarioApiService;
 
     private readonly ITokenService _tokenService;
+    private readonly IConfiguration _configuration;
+    private readonly IBus _bus;
+
 
     public AgendamentoController(IAgendamentoService agendamentoService, IAutenticacaoApiService autenticacaoApiService,
-                                 IHorarioApiService horarioApiService, ITokenService tokenService)
+                                 IHorarioApiService horarioApiService, ITokenService tokenService, IConfiguration configuration, IBus bus)
     {
         _agendamentoService = agendamentoService;
         _autenticacaoApiService = autenticacaoApiService;
         _horarioApiService = horarioApiService;
         _tokenService = tokenService;
+        _configuration = configuration;
+        _bus = bus;
     }
 
     [HttpGet("RetornarAgendamentos")]
     public async Task<ActionResult<IEnumerable<Agendamento>>> RetornarAgendamentos()
     {
         var paciente = _tokenService.ConverteTokenAuthorizationPaciente();
-        return  _agendamentoService.ListarAgendamentos(paciente.Id);
+        return _agendamentoService.ListarAgendamentos(paciente.Id);
     }
 
     [HttpPost("CriarAgendamentos")]
     public async Task<ActionResult<Agendamento>> CriarAgendamentos(CriarAgendamentoDTO agendamentoDTO)
     {
-        var paciente = _tokenService.ConverteTokenAuthorizationPaciente();
-
-        var agendamento = new Agendamento
+        if (ModelState.IsValid)
         {
-            Id = Guid.NewGuid(),
-            HorarioConsultaId = agendamentoDTO.HorarioConsultaId,
-            PacienteId = paciente.Id,
-            Justificativa = string.Empty,
-            Status = StatusAgendamento.Pendente
-        };
+            var paciente = _tokenService.ConverteTokenAuthorizationPaciente();
 
-        var horarioAgendado = await _horarioApiService.OcupaHorarioDisponivel(agendamentoDTO.HorarioConsultaId);
+            var agendamento = new Agendamento
+            {
+                Id = Guid.NewGuid(),
+                HorarioConsultaId = agendamentoDTO.HorarioConsultaId,
+                PacienteId = paciente.Id,
+                Justificativa = string.Empty,
+                Status = Models.StatusAgendamento.Pendente
+            };
 
-        if (horarioAgendado != null)
-        {
+            await EnviarParaFilaAsync("FilaOcupaHorario", agendamento);
+            await EnviarParaFilaAsync("FilaNovaConsulta", agendamento);
+
             _agendamentoService.CriarAgendamento(agendamento);
 
             return CreatedAtAction(nameof(RetornarAgendamentos), new { id = agendamento.Id }, agendamento);
@@ -72,6 +80,9 @@ public class AgendamentoController : ControllerBase
 
         if (agendamento is null)
             Conflict("Agendamento não encontrado");
+
+        await EnviarParaFilaAsync("FilaCancelamentoConsulta", agendamento);
+        await EnviarParaFilaAsync("FilaDesocupaHorario", agendamento);
 
         _agendamentoService.CancelarAgendamento(agendamento, cancelarAgendamentoDTO.Justificativa);
 
@@ -91,5 +102,25 @@ public class AgendamentoController : ControllerBase
         var horariosDisponiveis = await _horarioApiService.ListarHorariosDisponiveis(crm);
 
         return Ok(horariosDisponiveis);
+    }
+
+    private async Task EnviarParaFilaAsync(string nomeFila, Agendamento agendamento)
+    {
+        AgendamentoContract ac = new()
+        {
+            Id = agendamento.Id,
+            HorarioConsultaId = agendamento.HorarioConsultaId,
+            Justificativa = agendamento.Justificativa,
+            Status = (Contracts.StatusAgendamento)agendamento.Status,
+            MedicoId = agendamento.MedicoId,
+            PacienteId = agendamento.PacienteId
+        };
+
+        var configFila = _configuration[$"MassTransit:{nomeFila}"];
+        if (string.IsNullOrWhiteSpace(configFila))
+            throw new InvalidOperationException("Fila de agendamento não configurada.");
+
+        var endpoint = await _bus.GetSendEndpoint(new Uri($"queue:{configFila}"));
+        await endpoint.Send(ac);
     }
 }
