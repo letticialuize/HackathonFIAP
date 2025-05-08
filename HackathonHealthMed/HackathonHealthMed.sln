@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HackathonHealthMed.GestaoHo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HackathonHealthMed.GestaoConsultas", "HackathonHealthMed.GestaoConsultas\HackathonHealthMed.GestaoConsultas.csproj", "{6074A9E4-A021-412A-BE6E-E30A3C614F10}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HackathonHealthMed.Contracts", "HackathonHealthMed.Contracts\HackathonHealthMed.Contracts.csproj", "{E406A2CA-929B-45A2-91AD-16B405A937FB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{6074A9E4-A021-412A-BE6E-E30A3C614F10}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6074A9E4-A021-412A-BE6E-E30A3C614F10}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6074A9E4-A021-412A-BE6E-E30A3C614F10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E406A2CA-929B-45A2-91AD-16B405A937FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E406A2CA-929B-45A2-91AD-16B405A937FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E406A2CA-929B-45A2-91AD-16B405A937FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E406A2CA-929B-45A2-91AD-16B405A937FB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

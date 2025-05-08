@@ -1,6 +1,7 @@
 using HackathonHealthMed.Agendamentos.Data;
 using HackathonHealthMed.Agendamentos.Services;
 using HackathonHealthMed.Agendamentos.Services.Interfaces;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -44,8 +45,26 @@ builder.Services.AddSwaggerGen(c =>
                 });
 });
 
+var configuration = builder.Configuration;
+var servidor = configuration.GetSection("MassTransit")["Servidor"] ?? string.Empty;
+var usuario = configuration.GetSection("MassTransit")["Usuario"] ?? string.Empty;
+var senha = configuration.GetSection("MassTransit")["Senha"] ?? string.Empty;
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(servidor, "/", h =>
+        {
+            h.Username(usuario);
+            h.Password(senha);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IAgendamentoService, AgendamentoService>();
 builder.Services.AddScoped<IAutenticacaoApiService, AutenticacaoApiService>();

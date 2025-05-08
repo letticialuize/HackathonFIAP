@@ -14,5 +14,6 @@ namespace HackathonHealthMed.GestaoHorarios.Services.Interfaces
         public bool ValidaHorarioPorMedico(DateTime horario, string crmMedico);
         public List<AgendaMedicoDTO> ConsultarHorariosDisponiveisPorCrm(string crm);
         public void OcupaHorarioDisponivel(Guid id);
+        public void DesocupaHorario(Guid id);
     }
 }

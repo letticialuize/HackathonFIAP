@@ -1,6 +1,8 @@
 using HackathonHealthMed.GestaoHorarios.Data;
+using HackathonHealthMed.GestaoHorarios.Eventos;
 using HackathonHealthMed.GestaoHorarios.Services;
 using HackathonHealthMed.GestaoHorarios.Services.Interfaces;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -13,6 +15,42 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+var filaOcupaHorario = builder.Configuration["MassTransit:FilaOcupaHorario"];
+var filaDesocupaHorario = builder.Configuration["MassTransit:FilaDesocupaHorario"];
+
+var servidor = builder.Configuration["MassTransit:Servidor"];
+var usuario = builder.Configuration["MassTransit:Usuario"];
+var senha = builder.Configuration["MassTransit:Senha"];
+
+
+builder.Services.AddMassTransit(x =>
+{
+    x.AddConsumer<OcupaHorarioConsumer>();
+    x.AddConsumer<DesocupaHorarioConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(servidor, "/", h =>
+        {
+            h.Username(usuario);
+            h.Password(senha);
+        });
+
+        cfg.ReceiveEndpoint(filaOcupaHorario, e =>
+        {
+            e.Consumer<OcupaHorarioConsumer>(context);
+        });
+
+        cfg.ReceiveEndpoint(filaDesocupaHorario, e =>
+        {
+            e.Consumer<DesocupaHorarioConsumer>(context);
+        });
+
+    });
+});
+
+
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "gestaoHorario", Version = "v1" });
