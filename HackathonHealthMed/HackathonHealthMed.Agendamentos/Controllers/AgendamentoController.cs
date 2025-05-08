@@ -57,7 +57,7 @@ public class AgendamentoController : ControllerBase
                 HorarioConsultaId = agendamentoDTO.HorarioConsultaId,
                 PacienteId = paciente.Id,
                 Justificativa = string.Empty,
-                Status = Models.StatusAgendamento.Pendente
+                Status = StatusAgendamento.Pendente
             };
 
             await EnviarParaFilaAsync("FilaOcupaHorario", agendamento);
@@ -104,6 +104,26 @@ public class AgendamentoController : ControllerBase
         return Ok(horariosDisponiveis);
     }
 
+    [HttpGet("ListarAgendamentosPorMedico")]
+    public async Task<IActionResult> ListarAgendamentosPorMedico(Guid medicoId)
+    {
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedico(medicoId);
+        return Ok(agendamentosPorMedico);
+    }
+
+    [HttpGet("ListarAgendamentosPorMedicoPendente")]
+    public async Task<IActionResult> ListarAgendamentosPorMedicoPendente(Guid medicoId)
+    {
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedicoStatus(medicoId, StatusAgendamento.Pendente);
+        return Ok(agendamentosPorMedico);
+    }
+
+    [HttpGet("ListarAgendamentosPorMedicoConfirmado")]
+    public async Task<IActionResult> ListarAgendamentosPorMedicoConfirmado(Guid medicoId)
+    {
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedicoStatus(medicoId, StatusAgendamento.Confirmado);
+        return Ok(agendamentosPorMedico);
+    }
     private async Task EnviarParaFilaAsync(string nomeFila, Agendamento agendamento)
     {
         AgendamentoContract ac = new()

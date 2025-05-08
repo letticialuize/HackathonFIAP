@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using HackathonHealthMed.Contracts;
+using System.ComponentModel.DataAnnotations;
 
 namespace HackathonHealthMed.Agendamentos.Models;
 
@@ -23,10 +24,3 @@ public class Agendamento
     public Guid MedicoId { get; set; }
 }
 
-public enum StatusAgendamento
-{
-    Confirmado,
-    Cancelado,
-    Pendente,
-    Recusado
-}

@@ -1,6 +1,8 @@
 ﻿using HackathonHealthMed.Agendamentos.Data;
 using HackathonHealthMed.Agendamentos.Models;
 using HackathonHealthMed.Agendamentos.Services.Interfaces;
+using HackathonHealthMed.Contracts;
+using Microsoft.AspNetCore.HttpLogging;
 
 namespace HackathonHealthMed.Agendamentos.Services
 {
@@ -44,6 +46,11 @@ namespace HackathonHealthMed.Agendamentos.Services
         public List<Agendamento> ListarAgendamentosPorMedico(Guid idMedico)
         {
             return _context.Agendamentos.Where(x => x.MedicoId == idMedico).ToList();
+        }
+
+        public List<Agendamento> ListarAgendamentosPorMedicoStatus(Guid medicoId, StatusAgendamento statusAgendamento)
+        {
+            return _context.Agendamentos.Where(x => x.MedicoId == medicoId && x.Status == statusAgendamento).ToList();
         }
     }
 }
