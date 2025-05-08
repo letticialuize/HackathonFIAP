@@ -1,4 +1,5 @@
 ﻿using HackathonHealthMed.Agendamentos.Models;
+using HackathonHealthMed.Contracts;
 
 namespace HackathonHealthMed.Agendamentos.Services.Interfaces
 {

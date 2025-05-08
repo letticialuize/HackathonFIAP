@@ -1,6 +1,7 @@
 ﻿using HackathonHealthMed.Agendamentos.Data;
 using HackathonHealthMed.Agendamentos.Models;
 using HackathonHealthMed.Agendamentos.Services.Interfaces;
+using HackathonHealthMed.Contracts;
 using Microsoft.AspNetCore.HttpLogging;
 
 namespace HackathonHealthMed.Agendamentos.Services

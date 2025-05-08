@@ -1,4 +1,5 @@
 ﻿using HackathonHealthMed.Agendamentos.Models;
+using HackathonHealthMed.Contracts;
 using System.ComponentModel.DataAnnotations;
 
 namespace HackathonHealthMed.Agendamentos.DTOs
