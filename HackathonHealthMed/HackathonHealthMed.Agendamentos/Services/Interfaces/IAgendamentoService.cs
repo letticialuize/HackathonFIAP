@@ -8,5 +8,7 @@ namespace HackathonHealthMed.Agendamentos.Services.Interfaces
         void CriarAgendamento(Agendamento agendamento);
         Agendamento CancelarAgendamento(Agendamento agendamento, string justificativa);
         Agendamento ObterAgendamento(Guid idAgendamento);
+        List<Agendamento> ListarAgendamentosPorMedico(Guid medicoId);
+        List<Agendamento> ListarAgendamentosPorMedicoStatus(Guid medicoId, StatusAgendamento statusAgendamento);
     }
 }

@@ -92,4 +92,25 @@ public class AgendamentoController : ControllerBase
 
         return Ok(horariosDisponiveis);
     }
+
+    [HttpGet("ListarAgendamentosPorMedico")]
+    public async Task<IActionResult> ListarAgendamentosPorMedico(Guid medicoId)
+    {
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedico(medicoId);
+        return Ok(agendamentosPorMedico);
+    }
+
+    [HttpGet("ListarAgendamentosPorMedicoPendente")]
+    public async Task<IActionResult> ListarAgendamentosPorMedicoPendente(Guid medicoId)
+    {
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedicoStatus(medicoId, StatusAgendamento.Pendente);
+        return Ok(agendamentosPorMedico);
+    }
+
+    [HttpGet("ListarAgendamentosPorMedicoConfirmado")]
+    public async Task<IActionResult> ListarAgendamentosPorMedicoConfirmado(Guid medicoId)
+    {
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedicoStatus(medicoId, StatusAgendamento.Confirmado);
+        return Ok(agendamentosPorMedico);
+    }
 }
