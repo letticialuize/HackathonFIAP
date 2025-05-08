@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fiap-gestaoconsultas-deployment
+  labels:
+    app: fiap-gestaoconsultas
+    instance: fiap-gestaoconsultas-app
+  annotations:
+    description: "Este é a instância do microsserviço gestão de consultas da minha aplicação."
+    autor: Grupo 31
+spec:
+  replicas: 2  # Número de réplicas do gestaoconsultas
+  selector:
+    matchLabels:
+      app: fiap-gestaoconsultas
+  template:
+    metadata:
+      labels:
+        app: fiap-gestaoconsultas
+    spec:
+      containers:
+        - name: fiap-gestaoconsultas
+          image: letticialuize/healthmed-gestaoconsultas:1.4
+          ports:
+            - containerPort: 3004
+          
+          envFrom:
+            - configMapRef:
+                name: fiap-configmap    
+          volumeMounts:
+            - name: shared
+              mountPath: /app/data  # Local onde o volume será montado
+      volumes:
+        - name: shared
+          persistentVolumeClaim:
+            claimName: fiap-mssql-pvc  # PVC para persistência dos dados

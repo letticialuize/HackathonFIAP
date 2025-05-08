@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fiap-gestaohorario-deployment
+  labels:
+    app: fiap-gestaohorario
+    instance: fiap-gestaohorario-app
+  annotations:
+    description: "Este é a instância do microsserviço Gestão Horário da minha aplicação."
+    autor: Grupo 31
+spec:
+  replicas: 2  # Número de réplicas do gestaohorario
+  selector:
+    matchLabels:
+      app: fiap-gestaohorario
+  template:
+    metadata:
+      labels:
+        app: fiap-gestaohorario
+    spec:
+      containers:
+        - name: fiap-gestaohorario
+          image: letticialuize/healthmed-gestaohorario:1.4
+          ports:
+            - containerPort: 3002
+          env:
+          - name: SA_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                    name: fiap-mssql-secret
+                    key: SA_PASSWORD
+          - name: ConnectionStrings__GestaoHorarioConnection
+            value: "Data Source=mssql-service,1433;Initial Catalog=GestaoHorario;User Id=sa; Password=$(SA_PASSWORD);Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;"
+
+          envFrom:
+            - configMapRef:
+                name: fiap-configmap    
+          volumeMounts:
+            - name: shared
+              mountPath: /app/data  # Local onde o volume será montado
+      volumes:
+        - name: shared
+          persistentVolumeClaim:
+            claimName: fiap-mssql-pvc  # PVC para persistência dos dados

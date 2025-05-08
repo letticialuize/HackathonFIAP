@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fiap-configmap
+data:
+  # Configuração do RabbitMQ
+  RABBITMQ_HOST: "rabbitmq-service"  # Nome do serviço do RabbitMQ
+  RABBITMQ_PORT: "5672"  # Porta do RabbitMQ
+
+  # Configuração do SQL Server
+  SQL_HOST: "mssql-service"  # Nome do serviço SQL
+  SQL_PORT: "1433" # Porta do SQL
+  SQL_DATABASE_AUTENTICACAO: "autenticao_healthmed"  # Nome do banco de dados
+  SQL_DATABASE_AGENDAMENTOS: "Agendamentos"  # Nome do banco de dados
+  SQL_DATABASE_GESTAOHORARIO: "GestaoHorario" # Nome do banco de dados
+  
+  # Configuração dos Microservices
+  AUTENTICACAO_SERVICE_HOST: "fiap-autenticacao"
+  AUTENCICACAO_SERVICE_PORT: "3000"
+  AGENDAMENTOS_SERVICE_HOST: "fiap-agendamentos"
+  AGENDAMENTOS_SERVICE_PORT: "3001"
+  GESTAOHORARIO_SERVICE_HOST: "fiap-gestaohorario"
+  GESTAOHORARIO_SERVICE_PORT: "3002"
+  
+  MassTransit__FilaOcupaHorario: "FilaOcupaHorario"
+  MassTransit__FilaDesocupaHorario: "FilaDesocupaHorario"
+  MassTransit__FilaNovaConsulta: "FilaNovaConsulta"
+  MassTransit__FilaAtualizaConsulta: "FilaAtualizaConsulta"
+  MassTransit__FilaCancelamentoConsulta: "FilaCancelamentoConsulta"
+  MassTransit__Servidor: "rabbitmq-service"
+  MassTransit__Usuario: "user_api"
+  MassTransit__Senha: "senha123"
+  
+  ConnectionStrings__AutenticacaoConnection: "Data Source=mssql-service,1433;Initial Catalog=autenticao_healthmed;User Id=sa; Password=${SA_PASSWORD};Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;"
+  ConnectionStrings__AgendamentosConnection: "Data Source=mssql-service,1433;Initial Catalog=Agendamentos;User Id=sa; Password=${SA_PASSWORD};Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;"
+  ConnectionStrings__GestaoHorarioConnection: "Data Source=mssql-service,1433;Initial Catalog=GestaoHorario;User Id=sa; Password=${SA_PASSWORD};Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;"
+
+  
