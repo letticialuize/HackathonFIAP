@@ -32,7 +32,7 @@ jobs:
       run: dotnet restore HackathonHealthMed/HackathonHealthMed.sln
       
     - name: Build
-      run: dotnet build HHackathonHealthMed/HackathonHealthMed.sln --no-restore
+      run: dotnet build HackathonHealthMed/HackathonHealthMed.sln --no-restore
       
     - name: Test
       run: dotnet test HackathonHealthMed/HackathonHealthMed.sln --no-build --verbosity normal
