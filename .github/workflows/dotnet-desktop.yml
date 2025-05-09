@@ -26,10 +26,10 @@ jobs:
       run: ls -R
       
     - name: Restore dependencies
-      run: dotnet restore HackathonHealthMed.sln
+      run: dotnet restore HackathonFIAP/HackathonHealthMed.sln
       
     - name: Build
-      run: dotnet build HackathonHealthMed.sln --no-restore
+      run: dotnet build HackathonFIAP/HackathonHealthMed.sln --no-restore
       
     - name: Test
-      run: dotnet test HackathonHealthMed.sln --no-build --verbosity normal
+      run: dotnet test HackathonFIAP/HackathonHealthMed.sln --no-build --verbosity normal
