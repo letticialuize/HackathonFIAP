@@ -13,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddDbContext<AgendamentoDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AgendamentosConnection")));
 
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
@@ -98,6 +98,16 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AgendamentoDbContext>();
+
+    // Aplica as migrações
+    context.Database.Migrate();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

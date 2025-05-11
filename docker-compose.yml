@@ -1,0 +1,132 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      SA_PASSWORD: "FIAP@2024"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    hostname: "rabbitmq"
+    ports:
+        - "5672:5672"
+        - "15672:15672"
+    environment:
+        RABBITMQ_DEFAULT_USER: user_api
+        RABBITMQ_DEFAULT_PASS: senha123
+    networks:
+        - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  autenticacao:
+    build:
+      context: .
+      dockerfile: HackathonHealthMed/HackathonHealthMed.Autenticacao/Dockerfile.Autenticacao
+    command: ["dotnet", "HackathonHealthMed/HackathonHealthMed.Autenticacao/HackathonHealthMed.Autenticacao.dll"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      sqlserver:
+        condition: service_started
+    ports:
+      - "3000:3000"
+    networks:
+      - app-network
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=autenticacao_healthmed;User Id=sa;Password=FIAP@2024;TrustServerCertificate=True;
+      - MassTransit__Servidor=rabbitmq
+      - MassTransit__Usuario=user_api
+      - MassTransit__Senha=senha123
+      
+  agendamentos:
+    build:
+      context: .
+      dockerfile: HackathonHealthMed/HackathonHealthMed.Agendamentos/Dockerfile.Agendamentos
+    command: ["dotnet", "HackathonHealthMed/HackathonHealthMed.Agendamentos/HackathonHealthMed.Agendamentos.dll"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      sqlserver:
+        condition: service_started
+    ports:
+      - "3001:3001"
+    networks:
+      - app-network
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=Agendamentos;User Id=sa;Password=FIAP@2024;
+      - MassTransit__Servidor=rabbitmq
+      - MassTransit__Usuario=user_api
+      - MassTransit__Senha=senha123      
+
+  gestaohorario:
+    build:
+      context: .
+      dockerfile: HackathonHealthMed/HackathonHealthMed.GestaoHorarios/Dockerfile.GestaoHorarios
+    command: ["dotnet", "HackathonHealthMed/HackathonHealthMed.GestaoHorarios/HackathonHealthMed.GestaoHorarios.dll"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      sqlserver:
+        condition: service_started
+    ports:
+      - "3002:3002"
+    networks:
+      - app-network
+    environment:
+      - ConnectionStrings__DefaultConnection=Server=sqlserver;Database=GestaoHorario;User Id=sa;Password=FIAP@2024;TrustServerCertificate=True;
+      - MassTransit__Servidor=rabbitmq
+      - MassTransit__Usuario=user_api
+      - MassTransit__Senha=senha123    
+      
+  contracts:
+    build:
+      context: .
+      dockerfile: HackathonHealthMed/HackathonHealthMed.Contracts/Dockerfile.Contracts
+    command: ["dotnet", "HackathonHealthMed/HackathonHealthMed.Contracts/HackathonHealthMed.Contracts.dll"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      sqlserver:
+        condition: service_started
+    ports:
+      - "3003:3003"
+    networks:
+      - app-network   
+
+  gestaoconsultas:
+    build:
+      context: .
+      dockerfile: HackathonHealthMed/HackathonHealthMed.GestaoConsultas/Dockerfile.GestaoConsultas
+    command: ["dotnet", "HackathonHealthMed/HackathonHealthMed.GestaoConsultas/HackathonHealthMed.GestaoConsultas.dll"]
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      sqlserver:
+        condition: service_started
+    ports:
+      - "3004:3004"
+    networks:
+      - app-network
+    environment:
+      - MassTransit__Servidor=rabbitmq
+      - MassTransit__Usuario=user_api
+      - MassTransit__Senha=senha123 
+      
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sqlserver_data:

@@ -80,11 +80,12 @@ builder.Services.AddSwaggerGen(c =>
                     }
                 });
 });
+
 builder.Services.AddDbContext<GestaoHorarioDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-        opt => opt.CommandTimeout((int)TimeSpan.FromMinutes(3).TotalSeconds));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("GestaoHorarioConnection"));
 });
+
 builder.Services.AddScoped<IHorarioConsultaService, HorarioConsultaService>();
 builder.Services.AddScoped<IValorConsultaMedicoService, ValorConsultaMedicoService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
@@ -110,14 +111,26 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<GestaoHorarioDbContext>();
+
+    // Aplica as migrações
+    context.Database.Migrate();
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();
-// Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+
+// Configure the HTTP request pipeline.
+
 
 app.MapControllers();
 

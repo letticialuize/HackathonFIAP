@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fiap-autenticacao-deployment
+  labels:
+    app: fiap-autenticacao
+    instance: fiap-autenticacao-app
+  annotations:
+    description: "Este é a instância do microsserviço autenticacao da minha aplicação."
+    autor: Grupo 31
+spec:
+  replicas: 2  
+  selector:
+    matchLabels:
+      app: fiap-autenticacao
+  template:
+    metadata:
+      labels:
+        app: fiap-autenticacao
+    spec:
+      containers:
+        - name: fiap-autenticacao
+          image: letticialuize/hackathonfiap-autenticacao:1.0
+          ports:
+            - containerPort: 3000
+          env:
+          - name: SA_PASSWORD
+            valueFrom:
+                secretKeyRef:
+                    name: fiap-mssql-secret
+                    key: SA_PASSWORD
+          - name: ConnectionStrings__AutenticacaoConnection
+            value: "Data Source=mssql-service,1433;Initial Catalog=autenticao_healthmed;User Id=sa; Password=$(SA_PASSWORD);Connect Timeout=30;Encrypt=False;TrustServerCertificate=True;"
+
+          envFrom:
+            - configMapRef:
+                name: fiap-configmap   
+          volumeMounts:
+            - name: shared
+              mountPath: /app/data  
+      volumes:
+        - name: shared
+          persistentVolumeClaim:
+            claimName: fiap-mssql-pvc  

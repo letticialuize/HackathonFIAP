@@ -1,0 +1,12 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /app
+COPY . .
+RUN dotnet publish HackathonHealthMed/HackathonHealthMed.GestaoHorarios/HackathonHealthMed.GestaoHorarios.csproj -c Release -o /out
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /out .
+
+EXPOSE 3002
+
+ENTRYPOINT ["dotnet", "HackathonHealthMed.GestaoHorarios.dll"]
