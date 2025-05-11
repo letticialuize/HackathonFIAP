@@ -23,12 +23,12 @@ jobs:
 
     - name: Build & Push GestaoHorarios
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorario:latest ./HackathonHealthMed/HackathonHealthMed.GestaoHorario
-        docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorario:latest
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorarios:latest ./HackathonHealthMed/HackathonHealthMed.GestaoHorarios
+        docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorarios:latest
 
     - name: Build & Push GestaoConsultas
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest ./HackathonHealthMed/HackathonHealthMed.GestaoConsulta
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest ./HackathonHealthMed/HackathonHealthMed.GestaoConsultas
         docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest
 
     - name: Build & Push Agendamentos
