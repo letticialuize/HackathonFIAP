@@ -21,12 +21,12 @@ jobs:
         docker build -f HackathonHealthMed/HackathonHealthMed.Autenticacao/Dockerfile.Autenticacao -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest HackathonHealthMed
         docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest
 
-    - name: Build & Push GestaoHorario
+    - name: Build & Push GestaoHorarios
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorario:latest ./HackathonHealthMed/HackathonHealthMed.GestaoHorario
         docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorario:latest
 
-    - name: Build & Push GestaoConsulta
+    - name: Build & Push GestaoConsultas
       run: |
         docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest ./HackathonHealthMed/HackathonHealthMed.GestaoConsulta
         docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest
