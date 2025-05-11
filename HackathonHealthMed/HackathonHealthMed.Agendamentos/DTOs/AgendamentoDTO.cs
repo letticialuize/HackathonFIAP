@@ -14,5 +14,6 @@ namespace HackathonHealthMed.Agendamentos.DTOs
         public StatusAgendamento Status { get; set; }
 
         public string? Justificativa { get; set; }
+        public string MedicoCrm { get; set; }
     }
 }

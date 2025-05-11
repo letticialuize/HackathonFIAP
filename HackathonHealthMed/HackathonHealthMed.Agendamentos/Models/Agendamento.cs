@@ -21,6 +21,7 @@ public class Agendamento
     public string? Justificativa { get; set; }
 
     [Required]
-    public Guid MedicoId { get; set; }
+    [MaxLength(20)]
+    public string MedicoCrm { get; set; }
 }
 

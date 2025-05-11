@@ -18,7 +18,7 @@ namespace HackathonHealthMed.Agendamentos.Services
         public async Task<List<MedicoDTO>> ListarMedicos(string especialidade)
         {
             var token = _tokenService.ObterTokenAuthorizationHeader();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:5249/api/Medico/listar-medicos-por-especialidade?especialidade={especialidade}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:31305/api/Medico/listar-medicos-por-especialidade?especialidade={especialidade}");
             var response = new List<MedicoDTO>();
             using (var client = new HttpClient())
             {

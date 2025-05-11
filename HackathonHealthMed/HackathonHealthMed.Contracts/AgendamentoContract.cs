@@ -20,7 +20,7 @@ namespace HackathonHealthMed.Contracts
         public string? Justificativa { get; set; }
 
         [Required]
-        public Guid MedicoId { get; set; }
+        public string MedicoCrm { get; set; }
     }
 
     public enum StatusAgendamento
