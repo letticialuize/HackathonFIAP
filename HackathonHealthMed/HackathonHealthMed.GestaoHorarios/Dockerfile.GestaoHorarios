@@ -6,7 +6,7 @@ COPY HackathonHealthMed.GestaoHorarios/HackathonHealthMed.GestaoHorarios.csproj 
 
 RUN dotnet restore HackathonHealthMed.GestaoHorarios/HackathonHealthMed.GestaoHorarios.csproj
 
-COPY . ./
+COPY . ./ 
 
 RUN dotnet publish HackathonHealthMed.GestaoHorarios/HackathonHealthMed.GestaoHorarios.csproj -c Release -o /out
 
