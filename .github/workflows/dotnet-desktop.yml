@@ -10,28 +10,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout do código
-      uses: actions/checkout@v4
+      - name: Checkout do código
+        uses: actions/checkout@v4
+  
+      - name: Login no Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+  
+      - name: Build & Push Autenticacao
+        run: |
+          docker build -f HackathonHealthMed/HackathonHealthMed.Autenticacao/Dockerfile.Autenticacao -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest HackathonHealthMed
+          docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest
 
-    - name: Login no Docker Hub
-      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-
-    - name: Build & Push Autenticacao
-      run: |
-        docker build -f HackathonHealthMed/HackathonHealthMed.Autenticacao/Dockerfile.Autenticacao -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest HackathonHealthMed
-        docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest
-
-    - name: Build & Push GestaoHorarios
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorarios:latest ./HackathonHealthMed/HackathonHealthMed.GestaoHorarios
-        docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorarios:latest
-
-    - name: Build & Push GestaoConsultas
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest ./HackathonHealthMed/HackathonHealthMed.GestaoConsultas
-        docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest
-
-    - name: Build & Push Agendamentos
-      run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-agendamentos:latest ./HackathonHealthMed/HackathonHealthMed.Agendamentos
-        docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-agendamentos:latest
+      - name: Build & Push GestaoHorarios
+        run: |
+          docker build -f HackathonHealthMed/HackathonHealthMed.GestaoHorarios/Dockerfile.GestaoHorarios -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorarios:latest HackathonHealthMed
+          docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaohorarios:latest
+    
+      - name: Build & Push GestaoConsultas
+        run: |
+            docker build -f HackathonHealthMed/HackathonHealthMed.GestaoConsultas/Dockerfile.GestaoConsultas -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest HackathonHealthMed
+            docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-gestaoconsultas:latest
+    
+      - name: Build & Push Agendamentos
+        run: |
+          docker build -f HackathonHealthMed/HackathonHealthMed.Agendamentos/Dockerfile.Agendamentos -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-agendamentos:latest HackathonHealthMed
+          docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-agendamentos:latest
