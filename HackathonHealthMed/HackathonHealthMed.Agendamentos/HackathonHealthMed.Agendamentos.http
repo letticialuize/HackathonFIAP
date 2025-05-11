@@ -1,4 +1,4 @@
-@HackathonHealthMed.Agendamentos_HostAddress = http://localhost:5124
+@HackathonHealthMed.Agendamentos_HostAddress = http://localhost:31306
 
 GET {{HackathonHealthMed.Agendamentos_HostAddress}}/weatherforecast/
 Accept: application/json

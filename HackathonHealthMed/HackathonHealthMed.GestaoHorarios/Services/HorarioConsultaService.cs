@@ -26,6 +26,10 @@ namespace HackathonHealthMed.GestaoHorarios.Services
             _context.SaveChanges();
         }
 
+        public HorarioConsulta ConsultaHorarioPorId(Guid horarioId)
+        {
+            return _context.HorarioConsulta.Find(horarioId);
+        }
         public List<HorarioConsulta> ConsultarHorariosPorData(DateTime horario)
         {
             return _context.HorarioConsulta.Where(x => x.HorarioInicial.Date == horario.Date).ToList();

@@ -19,7 +19,7 @@ namespace HackathonHealthMed.Agendamentos.Services
         public async Task<List<HorarioDisponivelDTO>> ListarHorariosDisponiveis(string crm)
         {
             var token = _tokenService.ObterTokenAuthorizationHeader();
-            var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:5100/api/GestaoHorario/ListarHorariosDisponiveisPorCrm?crm={crm}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:31302/api/GestaoHorario/ListarHorariosDisponiveisPorCrm?crm={crm}");
             
             using (var client = new HttpClient())
             {
@@ -34,10 +34,11 @@ namespace HackathonHealthMed.Agendamentos.Services
             }
         }
 
-        public async Task<HorarioDisponivelDTO> OcupaHorarioDisponivel(Guid idHorarioConsulta)
+
+        public async Task<HorarioDisponivelDTO> ObterHorarioPorId(Guid idHorarioConsulta)
         {
             var token = _tokenService.ObterTokenAuthorizationHeader();
-            var request = new HttpRequestMessage(HttpMethod.Put, $"http://localhost:5100/api/GestaoHorario/OcupaHorarioDisponivel?id={idHorarioConsulta}");
+            var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:31302/api/GestaoHorario/ObterHorarioPorId?horarioId={idHorarioConsulta}");
 
             using (var client = new HttpClient())
             {
@@ -50,7 +51,7 @@ namespace HackathonHealthMed.Agendamentos.Services
                     throw new Exception(contentResp);
                 }
 
-                responseAutenticacaoApi.EnsureSuccessStatusCode(); 
+                responseAutenticacaoApi.EnsureSuccessStatusCode();
 
                 var objResponse = JsonSerializer.Deserialize<HorarioDisponivelDTO>(contentResp, new JsonSerializerOptions
                 {

@@ -6,5 +6,6 @@ namespace HackathonHealthMed.GestaoConsultas.Services.Interfaces
     {
         Task<List<AgendamentoDTO>> ListaAgendamentosConfirmados(Guid medicoId);
         Task<List<AgendamentoDTO>> ListaAgendamentosPendentes(Guid medicoId);
+        Task<AgendamentoDTO> ObterAgendamento(Guid agendamentoId);
     }
 }

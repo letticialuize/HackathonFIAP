@@ -1,5 +1,9 @@
+using System.Text;
 using HackathonHealthMed.GestaoConsultas.Services;
 using HackathonHealthMed.GestaoConsultas.Services.Interfaces;
+using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +13,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Agendamento", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "gestaoConsulta", Version = "v1" });
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
     {
@@ -36,16 +40,56 @@ builder.Services.AddSwaggerGen(c =>
                     }
                 });
 });
+
+var configuration = builder.Configuration;
+var servidor = configuration.GetSection("MassTransit")["Servidor"] ?? string.Empty;
+var usuario = configuration.GetSection("MassTransit")["Usuario"] ?? string.Empty;
+var senha = configuration.GetSection("MassTransit")["Senha"] ?? string.Empty;
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(servidor, "/", h =>
+        {
+            h.Username(usuario);
+            h.Password(senha);
+        });
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
 builder.Services.AddScoped<IAgendamentoApiService, AgendamentoApiService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = "HackathonHealthMed",
+            ValidAudience = "HackathonHealthMedAPI",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("K8XJ!pL2@3z$gW#qR6yVmTn9FsEcYdUb"))
+        };
+    });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 

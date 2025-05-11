@@ -1,19 +1,21 @@
 ﻿using HackathonHealthMed.Agendamentos.Data;
 using HackathonHealthMed.Agendamentos.DTOs;
 using HackathonHealthMed.Agendamentos.Models;
+using HackathonHealthMed.Agendamentos.Services;
 using HackathonHealthMed.Agendamentos.Services.Interfaces;
 using HackathonHealthMed.Contracts;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace HackathonHealthMed.Agendamentos.Controllers;
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 [Authorize]
 public class AgendamentoController : ControllerBase
 {
@@ -50,18 +52,17 @@ public class AgendamentoController : ControllerBase
         if (ModelState.IsValid)
         {
             var paciente = _tokenService.ConverteTokenAuthorizationPaciente();
-
+            var horarioConsulta = await _horarioApiService.ObterHorarioPorId(agendamentoDTO.HorarioConsultaId); 
             var agendamento = new Agendamento
             {
                 Id = Guid.NewGuid(),
                 HorarioConsultaId = agendamentoDTO.HorarioConsultaId,
                 PacienteId = paciente.Id,
                 Justificativa = string.Empty,
-                Status = StatusAgendamento.Pendente
+                Status = StatusAgendamento.Pendente,
+                MedicoCrm = horarioConsulta.MedicoCrm
             };
 
-            await EnviarParaFilaAsync("FilaOcupaHorario", agendamento);
-            await EnviarParaFilaAsync("FilaNovaConsulta", agendamento);
 
             _agendamentoService.CriarAgendamento(agendamento);
 
@@ -81,7 +82,6 @@ public class AgendamentoController : ControllerBase
         if (agendamento is null)
             Conflict("Agendamento não encontrado");
 
-        await EnviarParaFilaAsync("FilaCancelamentoConsulta", agendamento);
         await EnviarParaFilaAsync("FilaDesocupaHorario", agendamento);
 
         _agendamentoService.CancelarAgendamento(agendamento, cancelarAgendamentoDTO.Justificativa);
@@ -105,24 +105,31 @@ public class AgendamentoController : ControllerBase
     }
 
     [HttpGet("ListarAgendamentosPorMedico")]
-    public async Task<IActionResult> ListarAgendamentosPorMedico(Guid medicoId)
+    public async Task<IActionResult> ListarAgendamentosPorMedico(string medicoCrm)
     {
-        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedico(medicoId);
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedico(medicoCrm);
         return Ok(agendamentosPorMedico);
     }
 
     [HttpGet("ListarAgendamentosPorMedicoPendente")]
-    public async Task<IActionResult> ListarAgendamentosPorMedicoPendente(Guid medicoId)
+    public async Task<IActionResult> ListarAgendamentosPorMedicoPendente(string medicoCrm)
     {
-        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedicoStatus(medicoId, StatusAgendamento.Pendente);
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedicoStatus(medicoCrm, StatusAgendamento.Pendente);
         return Ok(agendamentosPorMedico);
     }
 
     [HttpGet("ListarAgendamentosPorMedicoConfirmado")]
-    public async Task<IActionResult> ListarAgendamentosPorMedicoConfirmado(Guid medicoId)
+    public async Task<IActionResult> ListarAgendamentosPorMedicoConfirmado(string medicoCrm)
     {
-        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedicoStatus(medicoId, StatusAgendamento.Confirmado);
+        var agendamentosPorMedico = _agendamentoService.ListarAgendamentosPorMedicoStatus(medicoCrm, StatusAgendamento.Confirmado);
         return Ok(agendamentosPorMedico);
+    }
+
+    [HttpGet("ObterAgendamento")]
+    public async Task<IActionResult> ObterAgendamento(Guid agendamentoId)
+    {
+        var agendamento = _agendamentoService.ObterAgendamento((agendamentoId));
+        return Ok(agendamento);
     }
     private async Task EnviarParaFilaAsync(string nomeFila, Agendamento agendamento)
     {
@@ -131,8 +138,8 @@ public class AgendamentoController : ControllerBase
             Id = agendamento.Id,
             HorarioConsultaId = agendamento.HorarioConsultaId,
             Justificativa = agendamento.Justificativa,
-            Status = (Contracts.StatusAgendamento)agendamento.Status,
-            MedicoId = agendamento.MedicoId,
+            Status = agendamento.Status,
+            MedicoCrm = agendamento.MedicoCrm,
             PacienteId = agendamento.PacienteId
         };
 
@@ -141,6 +148,9 @@ public class AgendamentoController : ControllerBase
             throw new InvalidOperationException("Fila de agendamento não configurada.");
 
         var endpoint = await _bus.GetSendEndpoint(new Uri($"queue:{configFila}"));
-        await endpoint.Send(ac);
+        var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+        await endpoint.Send(ac, cancellationTokenSource.Token);
     }
+
 }

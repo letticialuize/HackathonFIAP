@@ -24,6 +24,16 @@ namespace HackathonHealthMed.Agendamentos.Services
             return agendamento;
         }
 
+        public Agendamento AtualizaStatusAgendamento(Guid agendamentoId, StatusAgendamento statusAgendamento)
+        {
+            var agendamento = _context.Agendamentos.FirstOrDefault(x => x.Id == agendamentoId);
+            agendamento.Status = statusAgendamento;
+            _context.Agendamentos.Update(agendamento);
+            _context.SaveChanges();
+
+            return agendamento;
+        }
+
         public void CriarAgendamento(Agendamento agendamento)
         {
             _context.Agendamentos.Add(agendamento);
@@ -43,14 +53,14 @@ namespace HackathonHealthMed.Agendamentos.Services
                 .FirstOrDefault(x => x.Id == idAgendamento);
         }
 
-        public List<Agendamento> ListarAgendamentosPorMedico(Guid idMedico)
+        public List<Agendamento> ListarAgendamentosPorMedico(string crmMedico)
         {
-            return _context.Agendamentos.Where(x => x.MedicoId == idMedico).ToList();
+            return _context.Agendamentos.Where(x => x.MedicoCrm == crmMedico).ToList();
         }
 
-        public List<Agendamento> ListarAgendamentosPorMedicoStatus(Guid medicoId, StatusAgendamento statusAgendamento)
+        public List<Agendamento> ListarAgendamentosPorMedicoStatus(string medicoCrm, StatusAgendamento statusAgendamento)
         {
-            return _context.Agendamentos.Where(x => x.MedicoId == medicoId && x.Status == statusAgendamento).ToList();
+            return _context.Agendamentos.Where(x => x.MedicoCrm == medicoCrm && x.Status == statusAgendamento).ToList();
         }
     }
 }

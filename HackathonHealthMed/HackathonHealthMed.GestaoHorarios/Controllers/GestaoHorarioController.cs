@@ -96,6 +96,26 @@ namespace HackathonHealthMed.GestaoHorarios.Controllers
             return Ok(horarioConsulta);
         }
 
+        [HttpPut("DesocupaHorario")]
+        public IActionResult DesocupaHorario(Guid id)
+        {
+            var horarioConsulta = _horarioConsultaService.ListarHorariosConsulta().FirstOrDefault(h => h.Id == id);
+            if (horarioConsulta == null)
+                return NotFound(new { Mensagem = "Horário não encontrado." });
+            if (horarioConsulta.EstaDisponivel)
+                return Conflict(new { Mensagem = "Horário já livre." });
+            horarioConsulta.EstaDisponivel = true;
+            _horarioConsultaService.DesocupaHorario(id);
+            return Ok(horarioConsulta);
+        }
+
+        [HttpGet("ObterHorarioPorId")]
+        public IActionResult ObterHorarioPorId(Guid horarioId)
+        {
+            var horario = _horarioConsultaService.ConsultaHorarioPorId(horarioId);
+            return Ok(horario);
+        }
+
 
     }
 }
