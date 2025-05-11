@@ -1,3 +1,5 @@
+using HackathonHealthMed.GestaoConsultas.Services;
+using HackathonHealthMed.GestaoConsultas.Services.Interfaces;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -34,7 +36,9 @@ builder.Services.AddSwaggerGen(c =>
                     }
                 });
 });
-
+builder.Services.AddScoped<IAgendamentoApiService, AgendamentoApiService>();
+builder.Services.AddSingleton<ITokenService, TokenService>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

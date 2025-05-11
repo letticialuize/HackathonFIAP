@@ -1,0 +1,14 @@
+﻿namespace HackathonHealthMed.GestaoConsultas.DTOs
+{
+    public class AgendamentoDTO
+    {
+        public Guid Id { get; set; }
+        public Guid PacienteId { get; set; }
+
+        public Guid HorarioConsultaId { get; set; }
+
+        public string Status { get; set; }
+
+        public string Justificativa { get; set; }
+    }
+}
