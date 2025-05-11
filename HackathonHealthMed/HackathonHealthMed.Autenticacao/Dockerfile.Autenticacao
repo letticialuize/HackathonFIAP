@@ -1,15 +1,19 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /app
 
-COPY ../HackathonHealthMed.sln ./
-COPY ./*.csproj ./
-RUN dotnet restore ./HackathonHealthMed.Autenticacao.csproj
+COPY HackathonHealthMed.sln ./
+COPY HackathonHealthMed/Autenticacao/HackathonHealthMed.Autenticacao.csproj ./HackathonHealthMed/Autenticacao/
+
+RUN dotnet restore HackathonHealthMed/Autenticacao/HackathonHealthMed.Autenticacao.csproj
 
 COPY . ./
-RUN dotnet publish ./HackathonHealthMed.Autenticacao.csproj -c Release -o /out
 
+RUN dotnet publish HackathonHealthMed/Autenticacao/HackathonHealthMed.Autenticacao.csproj -c Release -o /out
 FROM mcr.microsoft.com/dotnet/aspnet:6.0
+
 WORKDIR /app
+
 COPY --from=build /out .
+EXPOSE 80
 
 ENTRYPOINT ["dotnet", "HackathonHealthMed.Autenticacao.dll"]
