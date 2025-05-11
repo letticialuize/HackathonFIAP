@@ -18,9 +18,8 @@ jobs:
 
     - name: Build & Push Autenticacao
       run: |
-        docker build -f ./HackathonHealthMed/HackathonHealthMed.Autenticacao/Dockerfile.Autenticacao -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest ./HackathonHealthMed/HackathonHealthMed.Autenticacao
+        docker build -f HackathonHealthMed/HackathonHealthMed.Autenticacao/Dockerfile.Autenticacao \ -t ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest HackathonHealthMed
         docker push ${{ secrets.DOCKER_USERNAME }}/hackathonfiap-autenticacao:latest
-
 
     - name: Build & Push GestaoHorario
       run: |
