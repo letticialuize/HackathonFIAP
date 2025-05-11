@@ -1,28 +1,28 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: fiap-contracts-deployment
+  name: fiap-gestaoconsultas-deployment
   labels:
-    app: fiap-contracts
-    instance: fiap-contracts-app
+    app: fiap-gestaoconsultas
+    instance: fiap-gestaoconsultas-app
   annotations:
-    description: "Este é a instância do microsserviço contracts da minha aplicação."
+    description: "Este é a instância do microsserviço gestão de consultas da minha aplicação."
     autor: Grupo 31
 spec:
-  replicas: 2  # Número de réplicas do contracts
+  replicas: 2  # Número de réplicas do gestaoconsultas
   selector:
     matchLabels:
-      app: fiap-contracts
+      app: fiap-gestaoconsultas
   template:
     metadata:
       labels:
-        app: fiap-contracts
+        app: fiap-gestaoconsultas
     spec:
       containers:
-        - name: fiap-contracts
-          image: letticialuize/healthmed-contracts:1.4
+        - name: fiap-gestaoconsultas
+          image: letticialuize/hackathonfiap-gestaoconsultas:1.0
           ports:
-            - containerPort: 3003
+            - containerPort: 3004
           
           envFrom:
             - configMapRef:

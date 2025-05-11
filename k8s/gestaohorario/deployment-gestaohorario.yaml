@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: fiap-gestaohorario
-          image: letticialuize/healthmed-gestaohorario:1.4
+          image: letticialuize/hackathonfiap-gestaohorario:1.4
           ports:
             - containerPort: 3002
           env:

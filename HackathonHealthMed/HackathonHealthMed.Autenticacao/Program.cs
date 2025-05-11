@@ -12,7 +12,7 @@ using System.Text.Encodings.Web;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<AutenticacaoDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("AutenticacaoConnection")));
 
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<AutenticacaoDbContext>()
@@ -89,14 +89,23 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+
+using (var scope = app.Services.CreateScope())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Autenticação Health Med");
-    });
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AutenticacaoDbContext>();
+
+    // Aplica as migrações
+    context.Database.Migrate();
 }
+
+
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+	c.SwaggerEndpoint("/swagger/v1/swagger.json", "Autenticação Health Med");
+});
+
 
 app.UseHttpsRedirection();
 

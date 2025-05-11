@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: fiap-autenticacao
-          image: letticialuize/healthmed-autenticacao:1.7
+          image: letticialuize/hackathonfiap-autenticacao:1.0
           ports:
             - containerPort: 3000
           env:
